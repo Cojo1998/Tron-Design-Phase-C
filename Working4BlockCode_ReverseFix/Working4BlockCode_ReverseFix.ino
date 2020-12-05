@@ -264,11 +264,11 @@ void setup() {
             double differenceX = startX - newX;
             double differenceY = startY - newY;
             double currentAngle = atan2(differenceY, differenceX);
-            if (i == 0)
+            if (i == 0) // Go to Block 1
             {
                desiredAngle = atan2(newY-BlockY1, newX-BlockX1);
             }
-            if (i == 1)
+            if (i == 1)  // Go to dropoff
             {
                desiredAngle = atan2(newY-DropOffLocationY, newX-DropOffLocationX);
              /*  Serial.print("X: ");
@@ -285,7 +285,7 @@ void setup() {
                   Serial.println("Block has been dropped off");
                 }
             }
-            if (i == 2)
+            if (i == 2) // Get Block 2
             {/*
                Serial.print("X: ");
               Serial.print(newX);
@@ -296,7 +296,7 @@ void setup() {
                desiredAngle = atan2(newY-BlockY2, newX-BlockX2);
                Serial.println("go to block 2");
             }
-            if (i == 3)
+            if (i == 3) // Drop off Block 2
             {
                desiredAngle = atan2(newY-DropOffLocationY, newX-DropOffLocationX);
                Serial.println("Going to drop-off");
@@ -321,6 +321,7 @@ void setup() {
             }*/
             if (i == 4) //Pick Up Blue Block One
             {
+               currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY3, newX-blueBlockX3);
                Serial.println("go to blue block 1");
             }
@@ -328,7 +329,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  > (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-75)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  < (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -337,7 +338,8 @@ void setup() {
                 }
             }
              if (i == 6) //Pick Up Blue Block Two
-            {
+            {  
+               currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY4, newX-blueBlockX4);
                Serial.println("go to blue block 2");
             }
@@ -345,7 +347,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  > (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-75)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  < (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -365,7 +367,8 @@ void setup() {
                }
             }*/
             if (i == 8)  
-            {
+            {  
+               currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX);
                Serial.println("go home y");
                if (newX < 20 && newX > -20 && newY < 20 && newY > -20)
@@ -377,12 +380,13 @@ void setup() {
             if (Start1 == "s")
             {
               angleDiff = desiredAngle - currentAngle; //Calculates the difference between the desired angle of the robot and the current angle.
-              Serial.print("x:");
+            /*  Serial.print("x:");
               Serial.println(newX);
               Serial.print("y:");
               Serial.println(newY);
               Serial.print("angle:");
               Serial.println(angleDiff);
+              */
               
               
   
@@ -431,11 +435,11 @@ void setup() {
              // startY = newY;    //Sets starting y for the next loop to the old new y.
 
                while(Serial.available() > 3){
-    startX = Serial.parseFloat();
-    startY = Serial.parseFloat();
-    }
-    startX = Serial.parseFloat();
-    startY = Serial.parseFloat();
+                startX = Serial.parseFloat();
+                startY = Serial.parseFloat();
+              }
+              startX = Serial.parseFloat();
+              startY = Serial.parseFloat();
               DesiredSpeedR = Speed;
               DesiredSpeedL = Speed;
               SetSpeed();
