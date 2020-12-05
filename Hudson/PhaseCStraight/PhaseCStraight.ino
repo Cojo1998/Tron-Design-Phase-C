@@ -18,6 +18,8 @@ VL53L0X sensor;
 Servo GripperServo;
 Servo RotationServo;
 
+boolean PivotRight= false;
+boolean PivotLeft = false;
 boolean stopFlag = 0;
 boolean grabFlag = 0;
 boolean grabReset = 0;
@@ -455,6 +457,14 @@ void SetSpeed() // -------------------Timer Interrupt---------------------------
                MotorVoltageR = -MotorVoltageR;
                MotorVoltageL = -MotorVoltageL;
               }
+             if(PivotLeft == true){
+               MotorVoltageR = -MotorVoltageR;
+               MotorVoltageL = MotorVoltageL;
+              }
+             if(PivotRight == true){
+               MotorVoltageR = MotorVoltageR;
+               MotorVoltageL = -MotorVoltageL;
+              }
           
        //Update Motor voltages
        //Serial.println(LeftAdjustmentPID);
@@ -497,13 +507,14 @@ float FindSpeedL(float DS)
 
  void angledRightTurn()
   {
-    int j = 700*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 500 half life
-    
+    int j = 325*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 500 half life
+    PivotRight = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
-    DesiredSpeedR = 15;  //15
-    DesiredSpeedL = 0;     //0
+    DesiredSpeedR = 30;  //15
+    DesiredSpeedL = 25;     //0
      SetSpeed();
     delay(j);
+    PivotRight = false;
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
@@ -514,13 +525,14 @@ float FindSpeedL(float DS)
   //Turns robot to the left based on the calculated angleDiff.
   void angledLeftTurn()
   {
-    int k = 840*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 300 half life
-    
+    int k = 325*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 300 half life
+    PivotLeft = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
-    DesiredSpeedR = 0;   //0
-    DesiredSpeedL = 10;   //10
+    DesiredSpeedR = 25;   //0
+    DesiredSpeedL = 30;   //10
      SetSpeed();
     delay(k);
+    PivotLeft = false;
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
