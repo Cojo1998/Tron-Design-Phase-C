@@ -64,7 +64,7 @@ def track(matrix_coefficients, distortion_coefficients):
         #greenUpper = (225, 255, 205)#pink
 
         #blue, red, green
-        pinkLower = (90, 45, 45)#pink
+        pinkLower = (90, 50, 70)#pink
         pinkUpper = (140, 255, 255)#pink
 
         #filter setup for HSV
@@ -198,7 +198,7 @@ def track(matrix_coefficients, distortion_coefficients):
                     print("Block " + str(t2+2) + " Location:")
                     print("x: " + str((int(x2)-int(xHome))) + " / y: " + str(int(yHome)-int(y2)))#flipped x
                     #print(M2)
-                    #ser.write(str((int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
+                    ser.write(str((int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
                     #ser.write("Y: ".encode() + str(int(y)).encode())
                     #ser.write(",".encode())
                     t2+=1
