@@ -33,6 +33,7 @@ def track(matrix_coefficients, distortion_coefficients):
     yHome = 0
     xPrev = 0
     yPrev = 0
+    c = 0
     greenBlockXY=[[0,0],[0,0]]
     calcGreenBlockXY=[[0,0],[0,0]]
     x_centerPixel=0
@@ -215,7 +216,7 @@ def track(matrix_coefficients, distortion_coefficients):
         #print("y_centerPixel: ")
         #print(y_centerPixel)
 
-        if t<0: #>1
+        if t>1: #>1
             thresh = 45
 
             xPt1 = x_centerPixel
@@ -277,8 +278,24 @@ def track(matrix_coefficients, distortion_coefficients):
 
             #cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
             #slope = (yPt2-yPt1)/(xPt2-xPt1)
+            if c == 0:
+                cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2),int(yPt2)), (0,255,0),2)
+                if xPt1 < xPt2+5 and xPt1 > xPt2-5 and yPt1 < yPt2+5 and yPt1 > yPt2-5:
+                    c+=1
+            if c == 1:
+                cv2.line(frame, (int(xPt1), int(yPt1)), (int(450),int(30)), (0,255,0),2)
+                if xPt1 < xPt3+5 and xPt1 > xPt3-5 and yPt1 < yPt3+5 and yPt1 > yPt3-5:
+                    c+=1
+            if c == 2:
+                cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
+                if xPt1 < xPt3+5 and xPt1 > xPt3-5 and yPt1 < yPt3+5 and yPt1 > yPt3-5:
+                    c+=1
+            if c == 3:
+                cv2.line(frame, (int(xPt1), int(yPt1)), (int(450),int(30)), (0,255,0),2)
+                if xPt1 < xPt3+5 and xPt1 > xPt3-5 and yPt1 < yPt3+5 and yPt1 > yPt3-5:
+                    c+=1
 
-            cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2),int(yPt2)), (0,255,0),2)
+
 
             if t<0:
                 if 0<= -(detObsQ/detThresh) and -(detObsQ/detThresh) <=1 and 0<= (detObsR/detThresh) and (detObsR/detThresh) <=1:
@@ -304,7 +321,7 @@ def track(matrix_coefficients, distortion_coefficients):
                    #if block is not in threshhold
                     cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
                     cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (255,205,0),2)#boundaries 45
-                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (255,205,0),2)#boundaries 45
+                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (255,205,0),2)#boundaries 45 
                     #print("Block outside threshold")
                     #cv2.line(frame, (int(xPt1-75), int(yPt1)), (int(xPt2-75),int(yPt2)), (0,0,255),2)#boundaries 45
 
