@@ -57,14 +57,14 @@ def track(matrix_coefficients, distortion_coefficients):
             distCoeff=distortion_coefficients)
 
         #colour definintion for green in RGB
-        greenLower = (25, 52, 72)#actually green 25,52,72
-        greenUpper = (102, 255, 255)
+        greenLower = (25, 45, 80)#actually green 25,52,72
+        greenUpper = (90, 255, 255)
 
         #greenLower = (108, 93, 63)#pink
         #greenUpper = (225, 255, 205)#pink
 
         #blue, red, green
-        pinkLower = (90, 50, 70)#pink
+        pinkLower = (90,50,70)#pink 90,38,80 (old 90,50,70) (new 90,35,105)
         pinkUpper = (140, 255, 255)#pink
 
         #filter setup for HSV
@@ -139,7 +139,7 @@ def track(matrix_coefficients, distortion_coefficients):
 #------------------------------------------------------------------------
                 #send data every 20 counts
                 s+=1
-                if s%15 == 0: #was 20
+                if s%10 == 0: #was 20
                     ser.write(str((int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
                     if ser.inWaiting():
                         msg = ser.readline() #put received msg in "msg"
@@ -155,7 +155,7 @@ def track(matrix_coefficients, distortion_coefficients):
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
             #draw circle around green blobs and dispaly coordinates
-            if radius > 1:
+            if radius > 3:
                 cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
                 cv2.putText(frame, "X: " + str((int(x)-int(xHome))) + " / Y: " + str(int(yHome)-int(y)), (int(x),int(y)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)#flipped x
                 #cv2.circle(frame, center, 3, (0, 0, 255), -1)
@@ -188,7 +188,7 @@ def track(matrix_coefficients, distortion_coefficients):
             center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))
 
             #draw circle around green blobs and dispaly coordinates
-            if radius2 > 1:
+            if radius2 > 3 and radius2 < 6:
                 cv2.circle(frame, (int(x2), int(y2)), int(radius2), (0, 255, 0), 2)
                 cv2.putText(frame, "X: " + str((int(x2)-int(xHome))) + " / Y: " + str(int(yHome)-int(y2)), (int(x2),int(y2)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)#flipped x
                 #cv2.circle(frame, center, 3, (0, 0, 255), -1)
