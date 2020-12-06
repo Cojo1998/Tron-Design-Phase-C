@@ -6,6 +6,8 @@ import imutils
 import time
 import serial
 import math
+import shapefile
+from shapely.geometry import Point, Polygon
 
 cap = cv2.VideoCapture(0)
 
@@ -40,6 +42,184 @@ def track(matrix_coefficients, distortion_coefficients):
     calcBlueBlockXY=[[0,0],[0,0]]
     x_centerPixel=0
     y_centerPixel=0
+
+    def checkPath(x1, y1, x2, y2, x3, y3, x4, y4, xDropG, yDropG, xDropB, yDropB, xHome, yHome):
+        arCoord = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)] #coordinates of blocks
+        thresh = 45 #set threshold for path
+
+        #begin path finding algorithm
+        while i < 4:
+            #make threshold polygon coordinates for inital block
+            if d == 0: 
+                obstacleCheck = [(arCoord[i][0]-thresh, arCoord[i][1]), (arCoord[i][0]+thresh, arCoord[i][1]), (xHome+thresh, yHome), (xHome-thresh, yHome)]
+
+            #make threshold polygon from block to dropoff   
+            if d == 1:
+                #if green do green drop off
+                if i < 2: 
+                    obstacleCheck = [(arCoord[i][0]-thresh, arCoord[i][1]), (arCoord[i][0]+thresh, arCoord[i][1]), (xDropG+thresh, yDropG), (xDropG-thresh, yDropG)]
+                #else do blue drop off
+                else: 
+                    obstacleCheck = [(arCoord[i][0]-thresh, arCoord[i][1]), (arCoord[i][0]+thresh, arCoord[i][1]), (xDropB+thresh, yDropB), (xDropB-thresh, yDropB)]
+
+            #first path is clear, check drop off to next block      
+            if d == 2:
+                #to avoid checking missing blocks
+                if m == i: 
+                    m+=1
+                #prevents from going outside of array
+                if m > 3: 
+                    m = 3
+                #if in green drop off
+                if i < 2: 
+                    obstacleCheck = [(xDropG+thresh, yDropG), (xDropG-thresh, yDropG), (arCoord[m][0]-thresh, arCoord[m][1]), (arCoord[m][0]+thresh, arCoord[m][1])]
+                #else do blue drop off
+                else: 
+                    obstacleCheck = [(xDropB+thresh, yDropB), (xDropB-thresh, yDropB), (arCoord[m][0]-thresh, arCoord[m][1]), (arCoord[m][0]+thresh, arCoord[m][1])]
+
+            #check path to drop off
+            if d == 3: 
+                #if green
+                if m < 2: 
+                    obstacleCheck = [(arCoord[m][0]-thresh, arCoord[m][1]), (arCoord[m][0]+thresh, arCoord[m][1]), (xDropG+thresh, yDropG), (xDropG-thresh, yDropG)]
+                #if blue
+                else: 
+                    obstacleCheck = [(arCoord[m][0]-thresh, arCoord[m][1]), (arCoord[m][0]+thresh, arCoord[m][1]), (xDropB+thresh, yDropB), (xDropB-thresh, yDropB)]
+
+            #choose next block
+            if d == 4:
+                #incrememnt n until its not a value of a missing block 
+                while n == i or n== m: 
+                    n+=1
+                #prevents from going outside array
+                if n > 3: 
+                    n = 3
+                #if currently in green drop off
+                if n < 2: 
+                    obstacleCheck = [(xDropG+thresh, yDropG), (xDropG-thresh, yDropG), (arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1])]
+                #else do blue drop off
+                else: 
+                    obstacleCheck = [(xDropB+thresh, yDropB), (xDropB-thresh, yDropB), (arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1])]
+
+            #check if path clear to drop off
+            if d == 5: 
+                #if green
+                if n > 2: 
+                    obstacleCheck = [(arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1]), (xDropG+thresh, yDropG), (xDropG-thresh, yDropG)]
+                #if blue
+                else:
+                    obstacleCheck = [(arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1]), (xDropB+thresh, yDropB), (xDropB-thresh, yDropB)]
+
+            #found clear path
+            if d == 6:
+                pathClear = 1
+
+            #if still looking for path
+            if pathClear == 0:
+                #if value equals same coordinate restart loop
+                if m == i or n == m or n == i: 
+                    k = 0
+                else:
+                    poly = Polygon(obstacleCheck) #set up threshold as polygon
+
+                    #check all coordinates inside threshold
+                    while j < 4: 
+                        #if 1 block dropped off already
+                        if d == 2 or d == 3: 
+                            #dont check missing block
+                            if j == i: 
+                                j+=1
+                                k+=1
+                            else:
+                                pt = Point(arCoord[j][0], arCoord[j][1])
+                                #if block isnt in threshold
+                                if pt.within(poly) == False: 
+                                    k+=1
+                                j+=1
+                        #checking when 2 blocks dropped off
+                        if d == 4 or d == 5 : 
+                            #dont check missing blocks
+                            if j == i or j == m: 
+                                j+=1
+                                k+=1
+                            else:
+                                pt = Point(arCoord[j][0], arCoord[j][1])
+                                #if block isnt in threshold
+                                if pt.within(poly) == False: 
+                                    k+=1
+                                j+=1
+                        if d < 2:
+                            pt = Point(arCoord[j][0], arCoord[j][1])
+                            #if block isnt in threshold
+                            if pt.within(poly) == False: 
+                                k+=1
+                            j+=1
+                #if path clear go to next stage
+                if k > 3: 
+                    d+=1
+                else:
+                    #if on stage 2
+                    if d == 2: 
+                        #if went through all leftover blocks
+                        if m > 3: 
+                            i+=1
+                        #if havent gone through all blocks
+                        else: 
+                            m+=1
+                            #dont check itself
+                            if m == i: 
+                                m+=1
+                    #choose different block, go back a stage
+                    if d == 3: 
+                        m+=1 #choose a different block
+                        d = 2 #go back to block choosing stage
+                    #choose different block
+                    if d == 4:
+                        #if went through all leftover blocks
+                        if n > 3:
+                            m+=1 #choose a different block
+                            d = 2 #go back to previous block choosing stage
+                        else:
+                            n+=1
+                    #choose different block
+                    if d == 5:
+                        n+=1 #choose different block
+                        d = 4 #go back to block picking stage
+                    if d < 2 or m > 3: #if still planning first path, or all paths blocked for stage 2
+                        i+=1
+            else:
+                #finds last coordinate
+                while p == i or p == m or p == n: 
+                    p+=1
+                    if p > 3:
+                        p = 0
+                    #0 is green, 1 is blue
+                    if i < 2: #check colour of block
+                        colour1 = 0
+                    else:
+                        colour1 = 1
+                    if m < 2: #check colour of block
+                        colour2 = 0
+                    else:
+                        colour2 = 1
+                    if n < 2: #check colour of block
+                        colour3 = 0
+                    else:
+                        colour3 = 1
+                    if p < 2: #check colour of block
+                        colour4 = 0
+                    else:
+                        colour4 = 1
+                #path of robot
+                arPath = [(colour1, arCoord[i][0], arCoord[i][1]), (colour2, arCoord[m][0], arCoord[m][1]), (colour3, arCoord[n][0], arCoord[n][1]), (colour4, arCoord[p][0], arCoord[p][1])]
+                i = 5 #ends while loop
+
+        return arPath #return path
+
+
+
+
+
 
     #ser.write("1".encode()) #sends 1 to start robot
     while True:
@@ -141,12 +321,13 @@ def track(matrix_coefficients, distortion_coefficients):
 
 #------------------------------------------------------------------------
                 #send data every 20 counts
-                s+=1
-                if s%10 == 0: #was 20
-                    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
-                    if ser.inWaiting():
-                        msg = ser.readline() #put received msg in "msg"
-                        print(msg) #print "msg"
+                
+                #s+=1
+                #if s%10 == 0: #was 20
+                #    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
+                #    if ser.inWaiting():
+                #        msg = ser.readline() #put received msg in "msg"
+                #        print(msg) #print "msg"
                         
                     
 
@@ -168,7 +349,7 @@ def track(matrix_coefficients, distortion_coefficients):
                     print("Block " + str(t) + " Location:")
                     print("x: " + str(-(int(x)-int(xHome))) + " / y: " + str(int(yHome)-int(y)))#flipped x
                     #print(M)
-                    ser.write(str(-(int(x)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
+                    #ser.write(str(-(int(x)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
                     
                     greenBlockXY[t][0] = int(x)
                     greenBlockXY[t][1] = int(y)
@@ -202,13 +383,13 @@ def track(matrix_coefficients, distortion_coefficients):
                     print("Block " + str(t2+2) + " Location:")
                     print("x: " + str(-(int(x2)-int(xHome))) + " / y: " + str(int(yHome)-int(y2)))#flipped x
                     #print(M2)
-                    ser.write(str(-(int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
+                    #ser.write(str(-(int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
                     
                     blueBlockXY[t2][0] = int(x2)#flipped x
                     blueBlockXY[t2][1] = int(y2)
 
-                    #calcBlueBlockXY[t][0] = -(int(x2)-int(xHome))#flipped x
-                    #calcBlueBlockXY[t][1] = int(yHome)-int(y2)#int(y)
+                    calcBlueBlockXY[t2][0] = -(int(x2)-int(xHome))#flipped x
+                    calcBlueBlockXY[t2][1] = int(yHome)-int(y2)#int(y)
 
                     #ser.write("Y: ".encode() + str(int(y)).encode())
                     #ser.write(",".encode())
@@ -250,139 +431,62 @@ def track(matrix_coefficients, distortion_coefficients):
             yPt2Calc = calcGreenBlockXY[0][1]
 
             xPt3Calc = calcGreenBlockXY[1][0]
-            yPt3Calc = calcGreenBlockXY[1][1] 
+            yPt3Calc = calcGreenBlockXY[1][1]
 
-            arThresh = np.array([[xPt3Calc-thresh,yPt3Calc],[xPt1Calc+thresh,yPt1Calc]])
-            detThresh = np.linalg.det(arThresh)
-            
-            arObsQ = np.array([[xPt2Calc,yPt2Calc],[xPt3Calc-thresh,yPt3Calc]])
-            detObsQ = np.linalg.det(arObsQ)
+            #poly=Polygon[(1,10),(10,10),(10,1),(1,1)]
+            coords = [(1, 1), (1, 10), (10, 10), (10, 1)]
+            poly = Polygon(coords)
+            ptTest1=Point((1,1))
+            ptTest2=Point((5,5))
 
-            arObsR = np.array([[xPt2Calc,yPt2Calc],[xPt1Calc+thresh,yPt1Calc]])
-            detObsR = np.linalg.det(arObsR)
+            print("Test 1")
+            print(ptTest1.within(poly))
+            print("Test 2")
+            print(ptTest2.within(poly))
 
-
-            #rightside calculations
-            arThresh_Right = np.array([[xPt3Calc,yPt3Calc],[xPt1Calc+thresh,yPt1Calc]])
-            detThresh_Right = np.linalg.det(arThresh_Right)
-
-            arObsQ_Right = np.array([[xPt2Calc,yPt2Calc],[xPt3Calc,yPt3Calc]])
-            detObsQ_Right = np.linalg.det(arObsQ_Right)
-
-            arObsR_Right = np.array([[xPt2Calc,yPt2Calc],[xPt1Calc+thresh,yPt1Calc]])
-            detObsR_Right = np.linalg.det(arObsR_Right)
-
-
-
-            #print("detObsQ/detThresh")
-            #print(-(detObsQ/detThresh))
-            #print("Done Calcs")
-            #print("N1")
-            #print(detObsQ)
-            #print((xPt2Calc*yPt3Calc)-((xPt3Calc-thresh)*yPt2Calc))
-            #print((detObsQ/detThresh))
-            #print("M2")
-            #print(detObsR)
-            #print((xPt2Calc*yPt1Calc)-((xPt1Calc+thresh)*yPt2Calc))
-            #print((detObsR/detThresh))
-            #print("Block Inside")
-            #print(str(xPt3Calc) + " / " + str(yPt3Calc))
-            #print("Block Outside")
-            #print(str(xPt2Calc) + " / " + str(yPt2Calc))
-
-
-            #cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
-            #slope = (yPt2-yPt1)/(xPt2-xPt1)
             if c < 1:
                 cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2),int(yPt2)), (0,255,0),2)
                 if xPt1 < xPt2+15 and xPt1 > xPt2-15 and yPt1 < yPt2+15 and yPt1 > yPt2-15:
                     c+=1
             if c < 2:
-                if c == 1:
-                   cv2.line(frame, (int(xPt1), int(yPt1)), (int(565),int(52)), (0,255,0),2) 
-                else:
-                    cv2.line(frame, (int(xPt2), int(yPt2)), (int(565),int(52)), (0,255,0),2)
+                cv2.line(frame, (int(xPt2), int(yPt2)), (int(565),int(52)), (0,255,0),2)
                 if xPt1 < 565+15 and xPt1 > 565-15 and yPt1 < 52+15 and yPt1 > 52-15:
                     c+=1
             if c < 3:
-                if c == 2:
-                    cv2.line(frame, (int(xPt1),int(yPt1)), (int(xPt3),int(yPt3)), (255,255,0),2)
-                else:
-                    cv2.line(frame, (int(565),int(52)), (int(xPt3),int(yPt3)), (255,255,0),2)
+                cv2.line(frame, (int(565),int(52)), (int(xPt3),int(yPt3)), (0,255,0),2)
                 if xPt1 < xPt3+15 and xPt1 > xPt3-15 and yPt1 < yPt3+15 and yPt1 > yPt3-15:
                     c+=1
             if c < 4:
-                if c == 3:
-                    cv2.line(frame, (int(xPt1), int(yPt1)), (int(565),int(52)), (255,255,0),2)
-                else:
-                    cv2.line(frame, (int(xPt3), int(yPt3)), (int(565),int(52)), (255,255,0),2)
-                if xPt1 < 565+15 and xPt1 > 565-15 and yPt1 < 52+15 and yPt1 > 52-15 and c > 3:
+                cv2.line(frame, (int(xPt3), int(yPt3)), (int(565),int(52)), (0,255,0),2)
+                if xPt1 < 565+15 and xPt1 > 565-15 and yPt1 < 52+15 and yPt1 > 52-15:
                     c+=1
             if c < 5:
-                if c == 4:
-                   cv2.line(frame, (int(xPt1),int(yPt1)), (int(xPt4),int(yPt4)), (255,0,0),2) 
-                else:
-                    cv2.line(frame, (int(565),int(52)), (int(xPt4),int(yPt4)), (255,0,0),2)
+                cv2.line(frame, (int(565),int(52)), (int(xPt4),int(yPt4)), (0,255,0),2)
                 if xPt1 < xPt4+15 and xPt1 > xPt4-15 and yPt1 < yPt4+15 and yPt1 > yPt4-15:
                     c+=1
             if c < 6:
-                if c == 5:
-                    cv2.line(frame, (int(xPt1),int(yPt1)), (int(40),int(70)), (255,0,0),2)
-                else:
-                    cv2.line(frame, (int(xPt4),int(yPt4)), (int(40),int(70)), (255,0,0),2)
+                cv2.line(frame, (int(xPt4),int(yPt4)), (int(40),int(70)), (0,255,0),2)
                 if xPt1 < 40+15 and xPt1 > 40-15 and yPt1 < 70+15 and yPt1 > 70-15:
                     c+=1
             if c < 7:
-                if c == 6:
-                    cv2.line(frame, (int(xPt1),int(yPt1)), (int(xPt5),int(yPt5)), (255,0,255),2)
-                else:
-                    cv2.line(frame, (int(40),int(70)), (int(xPt5),int(yPt5)), (255,0,255),2)
+                cv2.line(frame, (int(40),int(70)), (int(xPt5),int(yPt5)), (0,255,0),2)
                 if xPt1 < xPt5+15 and xPt1 > xPt5-15 and yPt1 < yPt5+15 and yPt1 > yPt5-15:
                     c+=1
             if c < 8:
-                if c == 7:
-                    cv2.line(frame, (int(xPt1),int(yPt1)), (int(40),int(70)), (255,0,255),2)
-                else:
-                    cv2.line(frame, (int(xPt5),int(yPt5)), (int(40),int(70)), (255,0,255),2)
-                if xPt1 < 40+15 and xPt1 > 40-15 and yPt1 < 70+15 and yPt1 > 70-15 and c > 7:
+                cv2.line(frame, (int(xPt5),int(yPt5)), (int(40),int(70)), (0,255,0),2)
+                if xPt1 < 40+15 and xPt1 > 40-15 and yPt1 < 70+15 and yPt1 > 70-15:
                     c+=1
             if c < 9:
-                if c == 8:
-                    cv2.line(frame, (int(xPt1),int(yPt1)), (int(580),int(450)), (0,0,255),2)
-                else:
-                    cv2.line(frame, (int(40),int(70)), (int(xHome),int(yHome)), (0,0,255),2)
-                if xPt1 < 580+15 and xPt1 > 580-15 and yPt1 < 450+15 and yPt1 > 450-15 and c > 7:
+                cv2.line(frame, (int(40),int(70)), (int(580),int(450)), (0,255,0),2)
+                if xPt1 < 580+15 and xPt1 > 580-15 and yPt1 < 450+15 and yPt1 > 450-15:
                     c+=1
 
 
 
-            if t<0:
-                if 0<= -(detObsQ/detThresh) and -(detObsQ/detThresh) <=1 and 0<= (detObsR/detThresh) and (detObsR/detThresh) <=1:
-                    
-                    
-                     #if block is in threshhold
-                    cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (0,0,255),2)#boundaries 45
-                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (0,0,255),2)#boundaries 45
-                    #print("Block is in threshold")
-                    if 0<= -(detObsQ_Right/detThresh_Right) and -(detObsQ_Right/detThresh_Right) <=1 and 0<= (detObsR_Right/detThresh_Right) and (detObsR_Right/detThresh_Right) <=1:
-                        
-                        cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2-thresh),int(yPt2)), (255,205,0),2)
-                        cv2.line(frame, (int(xPt2-thresh),int(yPt2)), (int(xPt3),int(yPt3)), (255,205,0),2)
-                        
-                    else:
-                        
-                        #if block is not in threshold
-                        cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
 
 
 
-                else:
-                   #if block is not in threshhold
-                    cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
-                    cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (255,205,0),2)#boundaries 45
-                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (255,205,0),2)#boundaries 45 
-                    #print("Block outside threshold")
-                    #cv2.line(frame, (int(xPt1-75), int(yPt1)), (int(xPt2-75),int(yPt2)), (0,0,255),2)#boundaries 45
+
 
         
 
@@ -400,6 +504,6 @@ def track(matrix_coefficients, distortion_coefficients):
 #import camera calibration
 conditions = load_coefficients("camera.yml")
 #connect to bluetooth on robot
-ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
+#ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
 #begin tracking function
 track(conditions[0], conditions[1])
