@@ -63,9 +63,9 @@ float blueBlockY4;
 boolean IsHome = false;
 boolean Ran = false;
 //Intiates and declares all global variables.
-int DropOffLocationX = 530; //550//Calibrate Drop Off location
+int DropOffLocationX = 0; //550//Calibrate Drop Off location
 int DropOffLocationY = 390; //420 when lined up
-int blueDropOffLocationX = 0; //550//Calibrate Drop Off location
+int blueDropOffLocationX = 530; //550//Calibrate Drop Off location
 int blueDropOffLocationY = 390; //420 when lined up
 double angleDiff;
 volatile long startPositionR;
@@ -277,7 +277,7 @@ void setup() {
                Serial.print(" / Y: ");
                Serial.println(newY);
                */
-                if ((newX  > (DropOffLocationX-75)) && (newY > (DropOffLocationY-75)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
+                if ((newX  < (DropOffLocationX+50)) && (newY > (DropOffLocationY-50)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -301,7 +301,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-DropOffLocationY, newX-DropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  > (DropOffLocationX-75)) && (newY > (DropOffLocationY-75)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
+                if ((newX  < (DropOffLocationX+50)) && (newY > (DropOffLocationY-50)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -330,7 +330,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  < (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  > (blueDropOffLocationX-75)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -348,7 +348,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  < (blueDropOffLocationX+50)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  > (blueDropOffLocationX-75)) && (newY > (blueDropOffLocationY-50)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -459,7 +459,7 @@ void setup() {
     SetSpeed();
     if (FinalRotation == false){
       angleDiff = 2.7;
-      angledRightTurn();
+      angledLeftTurn();
       FinalRotation = true;
     }
     DesiredSpeedR=0;
@@ -537,13 +537,13 @@ void SetSpeed() // -------------------Timer Interrupt---------------------------
                MotorVoltageL = -MotorVoltageL;
               }
               if(PivotRight == true){
-               MotorVoltageR = MotorVoltageR;
-               MotorVoltageL = -MotorVoltageL;
+               MotorVoltageR = -MotorVoltageR;
+               MotorVoltageL = MotorVoltageL;
               }
 
           if(PivotLeft == true){
-               MotorVoltageR = -MotorVoltageR;
-               MotorVoltageL = MotorVoltageL;
+               MotorVoltageR = MotorVoltageR;
+               MotorVoltageL = -MotorVoltageL;
               }
           
           
@@ -587,7 +587,7 @@ float FindSpeedL(float DS)
 }
 void angledRightTurn()
   {
-    int j = 460*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 500 half life
+    int j = 530*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 500 half life
     PivotRight = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
     DesiredSpeedR = 10;  //15
@@ -605,7 +605,7 @@ void angledRightTurn()
   //Turns robot to the left based on the calculated angleDiff.
    void angledLeftTurn()
   {
-    int k = 530*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 300 half life
+    int k = 460*(angleDiff);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration. 300 half life
     PivotLeft = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
     DesiredSpeedR = 10;   //0
@@ -658,7 +658,7 @@ void angledRightTurn()
     //180
     Serial.println("stopped reverse");
     angleDiff = 2.7;
-    angledRightTurn();
+    angledLeftTurn();
     
     while(Serial.available() > 3){
     startX = Serial.parseFloat();
