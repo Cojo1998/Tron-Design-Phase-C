@@ -125,14 +125,14 @@ def track(matrix_coefficients, distortion_coefficients):
                 angleDeg = angle*(180/math.pi)
                 
                 #display aruco marker coordinates
-                cv2.putText(frame, "X: " + str(int((int(x_centerPixel)-int(xHome))*3.37)) + " mm", (10,75), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)#flipped x
+                cv2.putText(frame, "X: " + str(int((int(x_centerPixel)-int(xHome))*-3.37)) + " mm", (10,75), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)#flipped x
                 cv2.putText(frame, "Y: " + str(int((int(yHome)-int(y_centerPixel))*3.37)) + " mm", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)
                 cv2.putText(frame, "Direction: " + str(int(angleDeg)) + " degrees", (10,125), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                cv2.putText(frame, "X: " + str((int(x_centerPixel)-int(xHome))) + " pixels", (10,175), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)#flipped x
+                cv2.putText(frame, "X: " + str(-(int(x_centerPixel)-int(xHome))) + " pixels", (10,175), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)#flipped x
                 cv2.putText(frame, "Y: " + str(int(yHome)-int(y_centerPixel)) + " pixels", (10,200), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)
 
 
-                if ((x_centerPixel-xHome))<20 and ((x_centerPixel-xHome))>-20 and (yHome-y_centerPixel)<20 and (yHome-y_centerPixel)>-20:#flipped x
+                if (-(x_centerPixel-xHome))<20 and (-(x_centerPixel-xHome))>-20 and (yHome-y_centerPixel)<20 and (yHome-y_centerPixel)>-20:#flipped x
                     cv2.putText(frame, "Inital D is Home!", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (20, 123, 255), 2)
 
 
@@ -140,7 +140,7 @@ def track(matrix_coefficients, distortion_coefficients):
                 #send data every 20 counts
                 s+=1
                 if s%10 == 0: #was 20
-                    ser.write(str((int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
+                    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
                     if ser.inWaiting():
                         msg = ser.readline() #put received msg in "msg"
                         print(msg) #print "msg"
@@ -157,23 +157,24 @@ def track(matrix_coefficients, distortion_coefficients):
             #draw circle around green blobs and dispaly coordinates
             if radius > 3:
                 cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
-                cv2.putText(frame, "X: " + str((int(x)-int(xHome))) + " / Y: " + str(int(yHome)-int(y)), (int(x),int(y)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)#flipped x
+                cv2.putText(frame, "X: " + str(-(int(x)-int(xHome))) + " / Y: " + str(int(yHome)-int(y)), (int(x),int(y)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)#flipped x
                 #cv2.circle(frame, center, 3, (0, 0, 255), -1)
 
                 #print coordinates for first 2 blobs
                 if t < 2:
                     print("Block " + str(t) + " Location:")
-                    print("x: " + str((int(x)-int(xHome))) + " / y: " + str(int(yHome)-int(y)))#flipped x
+                    print("x: " + str(-(int(x)-int(xHome))) + " / y: " + str(int(yHome)-int(y)))#flipped x
                     #print(M)
-                    ser.write(str((int(x)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
-                    greenBlockXY[t][0] = int(x)
+                    ser.write(str(-(int(x)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
+                    
+                    greenBlockXY[t][0] = int(-x)#flipped x
                     greenBlockXY[t][1] = int(y)
 
-                    calcGreenBlockXY[t][0] = int(x)-int(xHome)#int(x)
+                    calcGreenBlockXY[t][0] = -(int(x)-int(xHome))#flipped x
                     calcGreenBlockXY[t][1] = int(yHome)-int(y)#int(y)
 
-                    print(calcGreenBlockXY[t][0])
-                    print(calcGreenBlockXY[t][1])
+                    #print(calcGreenBlockXY[t][0])
+                    #print(calcGreenBlockXY[t][1])
                     #ser.write("Y: ".encode() + str(int(y)).encode())
                     #ser.write(",".encode())
                     t+=1
@@ -190,15 +191,15 @@ def track(matrix_coefficients, distortion_coefficients):
             #draw circle around green blobs and dispaly coordinates
             if radius2 > 3 and radius2 < 6:
                 cv2.circle(frame, (int(x2), int(y2)), int(radius2), (0, 255, 0), 2)
-                cv2.putText(frame, "X: " + str((int(x2)-int(xHome))) + " / Y: " + str(int(yHome)-int(y2)), (int(x2),int(y2)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)#flipped x
+                cv2.putText(frame, "X: " + str(-(int(x2)-int(xHome))) + " / Y: " + str(int(yHome)-int(y2)), (int(x2),int(y2)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)#flipped x
                 #cv2.circle(frame, center, 3, (0, 0, 255), -1)
 
                 #print coordinates for first 2 blobs
                 if t2 < 2:
                     print("Block " + str(t2+2) + " Location:")
-                    print("x: " + str((int(x2)-int(xHome))) + " / y: " + str(int(yHome)-int(y2)))#flipped x
+                    print("x: " + str(-(int(x2)-int(xHome))) + " / y: " + str(int(yHome)-int(y2)))#flipped x
                     #print(M2)
-                    ser.write(str((int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
+                    ser.write(str(-(int(x2)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y2)).encode() + ",".encode())#flipped x #------------------------------------------------------------------------
                     #ser.write("Y: ".encode() + str(int(y)).encode())
                     #ser.write(",".encode())
                     t2+=1
@@ -214,7 +215,7 @@ def track(matrix_coefficients, distortion_coefficients):
         #print("y_centerPixel: ")
         #print(y_centerPixel)
 
-        if t>1:
+        if t<0: #>1
             thresh = 45
 
             xPt1 = x_centerPixel
@@ -276,32 +277,36 @@ def track(matrix_coefficients, distortion_coefficients):
 
             #cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
             #slope = (yPt2-yPt1)/(xPt2-xPt1)
-            if 0<= -(detObsQ/detThresh) and -(detObsQ/detThresh) <=1 and 0<= (detObsR/detThresh) and (detObsR/detThresh) <=1:
-                
-                
-                 #if block is in threshhold
-                cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (0,0,255),2)#boundaries 45
-                cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (0,0,255),2)#boundaries 45
-                #print("Block is in threshold")
-                if 0<= -(detObsQ_Right/detThresh_Right) and -(detObsQ_Right/detThresh_Right) <=1 and 0<= (detObsR_Right/detThresh_Right) and (detObsR_Right/detThresh_Right) <=1:
+
+            cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2),int(yPt2)), (0,255,0),2)
+
+            if t<0:
+                if 0<= -(detObsQ/detThresh) and -(detObsQ/detThresh) <=1 and 0<= (detObsR/detThresh) and (detObsR/detThresh) <=1:
                     
-                    cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2-thresh),int(yPt2)), (255,205,0),2)
-                    cv2.line(frame, (int(xPt2-thresh),int(yPt2)), (int(xPt3),int(yPt3)), (255,205,0),2)
                     
+                     #if block is in threshhold
+                    cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (0,0,255),2)#boundaries 45
+                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (0,0,255),2)#boundaries 45
+                    #print("Block is in threshold")
+                    if 0<= -(detObsQ_Right/detThresh_Right) and -(detObsQ_Right/detThresh_Right) <=1 and 0<= (detObsR_Right/detThresh_Right) and (detObsR_Right/detThresh_Right) <=1:
+                        
+                        cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2-thresh),int(yPt2)), (255,205,0),2)
+                        cv2.line(frame, (int(xPt2-thresh),int(yPt2)), (int(xPt3),int(yPt3)), (255,205,0),2)
+                        
+                    else:
+                        
+                        #if block is not in threshold
+                        cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
+
+
+
                 else:
-                    
-                    #if block is not in threshold
+                   #if block is not in threshhold
                     cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
-
-
-
-            else:
-               #if block is not in threshhold
-                cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt3),int(yPt3)), (0,255,0),2)
-                cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (255,205,0),2)#boundaries 45
-                cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (255,205,0),2)#boundaries 45
-                #print("Block outside threshold")
-                #cv2.line(frame, (int(xPt1-75), int(yPt1)), (int(xPt2-75),int(yPt2)), (0,0,255),2)#boundaries 45
+                    cv2.line(frame, (int(xPt1+thresh), int(yPt1)), (int(xPt3+thresh),int(yPt3)), (255,205,0),2)#boundaries 45
+                    cv2.line(frame, (int(xPt1-thresh), int(yPt1)), (int(xPt3-thresh),int(yPt3)), (255,205,0),2)#boundaries 45
+                    #print("Block outside threshold")
+                    #cv2.line(frame, (int(xPt1-75), int(yPt1)), (int(xPt2-75),int(yPt2)), (0,0,255),2)#boundaries 45
 
         
 
