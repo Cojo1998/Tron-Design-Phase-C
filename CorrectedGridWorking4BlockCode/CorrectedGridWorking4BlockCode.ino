@@ -15,7 +15,8 @@
 Shield2AMotor motor(SIGNED_MAGNITUDE);
 Encoder myEncoderR(2, 13);
 Encoder myEncoderL(3, 12);
-
+int CSpeedR = 0;
+int CSpeedL = 10;
 VL53L0X sensor;
 Servo GripperServo;
 Servo RotationServo;
@@ -63,10 +64,10 @@ float blueBlockY4;
 boolean IsHome = false;
 boolean Ran = false;
 //Intiates and declares all global variables.
-int DropOffLocationX = 19; //550//Calibrate Drop Off location
-int DropOffLocationY = 398; //420 when lined up
-int blueDropOffLocationX = 538; //550//Calibrate Drop Off location
-int blueDropOffLocationY = 375; //420 when lined up
+int DropOffLocationX = 4; //550//Calibrate Drop Off location
+int DropOffLocationY = 413; //420 when lined up
+int blueDropOffLocationX = 555; //550//Calibrate Drop Off location
+int blueDropOffLocationY = 398; //420 when lined up
 double angleDiff;
 volatile long startPositionR;
 volatile long startPositionL;
@@ -188,12 +189,16 @@ void setup() {
         DesiredSpeedL = Speed;
         SetSpeed();
         delay(500);  
+        DesiredSpeedR = CSpeedR;
+        DesiredSpeedL = CSpeedL;
+        SetSpeed();
+        delay(50);
         DesiredSpeedR = 0;
         DesiredSpeedL = 0;
         SetSpeed();
 
         //-------------------------------------------------------------------------------------------------Start Block Search----------------------------------------------------------------------------------------------------------------------
-          while (i<9)
+          while (i<10)
         {
           //might move these to multitask, unsure yet
           
@@ -240,7 +245,11 @@ void setup() {
               DesiredSpeedR = Speed;
               DesiredSpeedL = Speed;
               SetSpeed();
-              delay(500);  //Hudson Edit remove if faulty
+              delay(650); 
+              DesiredSpeedR = CSpeedR;
+              DesiredSpeedL = CSpeedL;
+              SetSpeed();
+              delay(50);
               DesiredSpeedR=0;
               DesiredSpeedL=0;
               SetSpeed();
@@ -277,7 +286,7 @@ void setup() {
                Serial.print(" / Y: ");
                Serial.println(newY);
                */
-                if ((newX  < (DropOffLocationX)) && (newY > (DropOffLocationY)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
+                if ((newX  < (DropOffLocationX+15)) && (newY > (DropOffLocationY-15)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -301,7 +310,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-DropOffLocationY, newX-DropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  < (DropOffLocationX)) && (newY > (DropOffLocationY)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
+                if ((newX  < (DropOffLocationX+15)) && (newY > (DropOffLocationY-15)))//(((newX-DropOffLocationX)>30 || (newX-DropOffLocationX)>-30) && ((newY-DropOffLocationY)>30 || (newY - DropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -330,7 +339,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  > (blueDropOffLocationX)) && (newY > (blueDropOffLocationY)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  > (blueDropOffLocationX-15)) && (newY > (blueDropOffLocationY-15)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -348,7 +357,7 @@ void setup() {
             {
                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
                Serial.println("Going to drop-off");
-                if ((newX  > (blueDropOffLocationX)) && (newY > (blueDropOffLocationY)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
+                if ((newX  > (blueDropOffLocationX-15)) && (newY > (blueDropOffLocationY-15)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
                   GripperOpen();
@@ -368,6 +377,16 @@ void setup() {
                }
             }*/
             if (i == 8)  
+            {  
+               currentAngle=atan2((startY - newY),(startX - newX));
+               desiredAngle = atan2(newY, newX-250);
+               Serial.println("Going home");
+               if (newY < 75)
+               {
+                i++;
+               }
+            }
+            if (i == 9)  
             {  
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX);
@@ -412,7 +431,7 @@ void setup() {
                 else    //Otherwise turn right by the difference between the desired and current angles.
                 {
                   // Serial.println("Turning Right");
-                  if (angleDiff > 0.26167){
+                  if (angleDiff > 0.785){
                     angledLeftTurn();
                   }
                   else{
@@ -427,7 +446,7 @@ void setup() {
                 {
                   angleDiff = 2*PI - angleDiff;//Finds the equivalent angle to turn in the right direction.
                   //Serial.println("Turning Right");
-                  if (angleDiff > 0.26167){
+                  if (angleDiff > 0.785){
                     angledLeftTurn();
                   }
                   else{
@@ -466,6 +485,10 @@ void setup() {
               DesiredSpeedL = Speed;
               SetSpeed();
               delay(500);
+              DesiredSpeedR = CSpeedR;
+              DesiredSpeedL = CSpeedL;
+              SetSpeed();
+              delay(50);
               DesiredSpeedR=0;
               DesiredSpeedL=0;
               SetSpeed();
@@ -488,7 +511,7 @@ void setup() {
     SetSpeed();
     
   }
-void SetSpeed() // -------------------Timer Interrupt-------------------------------------------------------------------------------------------------------------------------------------------------
+void SetSpeed() // -------------------Speed Control-------------------------------------------------------------------------------------------------------------------------------------------------
 {
       //----------------Calculate Wheel Speed---------------------
           //Reads an intial value from both the right and left encoder.
@@ -724,6 +747,10 @@ void angledLeftTurn()
     DesiredSpeedL = Speed;
     SetSpeed();
     delay(500);
+    DesiredSpeedR = CSpeedR;
+    DesiredSpeedL = CSpeedL;
+    SetSpeed();
+    delay(50);
    
     while(Serial.available() > 3){ // read serial as long at least 1 bit of data in the serial
     newX = Serial.parseFloat();

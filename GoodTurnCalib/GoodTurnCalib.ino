@@ -98,7 +98,7 @@ void setup() {
 //---------------------------------------------------------------------------------------------------Main Loop-----------------------------------------------------------------------------------------------------------
   void loop() 
   { //Too alter turns go down to turn functions and change multiplier.
-    delay(3000);
+   /* delay(3000);
     DesiredSpeedR = Speed;
     DesiredSpeedL = Speed;
     SetSpeed();
@@ -106,24 +106,59 @@ void setup() {
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
     SetSpeed();
+    delay(500);*/
+    delay(3000);
+    a=.1744444;// 10 degree turn
+    angledRightTurnSmall();
     delay(500);
-   //  a=.1744444;// 10 degree turn
-   // angledRightTurn();
-  //  delay(1000);
-  //  angledLeftTurn();
-   // delay(1000);
-    a=.523333;// 30 degree turn
-    angledRightTurn();
+     angledRightTurnSmall();
+    delay(500);
+     angledRightTurnSmall();
+    delay(500);
+       angledRightTurnSmall();
+    delay(500);
+       angledRightTurnSmall();
+    delay(500);
+         angledRightTurnSmall();
+    delay(500);
+        angledRightTurnSmall();
+    delay(500);
+      angledRightTurnSmall();
+    delay(1000);
+    a=.1744444;// 30 degree turn
+   angledRightTurnSmall();
+    delay(2000);
+        a = 0.523333;
+    angledLeftTurn();
     delay(1000);
     angledRightTurn();
     delay(1000);
+        a = 0.785;
+    angledLeftTurn();
+    delay(1000);
     angledRightTurn();
     delay(1000);
+    a = 1.57;
+    angledLeftTurn();
+    delay(1000);
+    angledRightTurn();
+    delay(1000);
+    a = 2.71;
+    angledLeftTurn();
+    delay(1000);
+    angledRightTurn();
+    delay(1000);
+    a = 3.14;
+    angledLeftTurn();
+    delay(1000);
+    angledRightTurn();
+    delay(1000);
+    /*
     angledLeftTurn();
      delay(1000);
     angledLeftTurn();
      delay(1000);
-    angledLeftTurn();
+    angledLeftTurn();*/
    /* a = 1.57;   //90 degree turn
     delay(1000);
     angledRightTurn();  //test right
@@ -282,7 +317,7 @@ float FindSpeedL(float DS)
 
  void angledRightTurn()
   {
-    int j = 460*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
+    int j = 375*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
     PivotRight = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
     DesiredSpeedR = 10;
@@ -300,7 +335,41 @@ float FindSpeedL(float DS)
   //Turns robot to the left based on the calculated angleDiff.
   void angledLeftTurn()
   {
-    int k = 510*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
+    int k = 375*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
+    PivotLeft = true;
+    //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
+    DesiredSpeedR = 10;
+    DesiredSpeedL = 10;
+     SetSpeed();
+    delay(k);
+    PivotLeft = false;
+    DesiredSpeedR = 0;
+    DesiredSpeedL = 0;
+     SetSpeed();
+    delay(3000);
+   
+  }
+  
+   void angledRightTurnSmall()
+     {
+    int k = 730*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
+    PivotRight = true;
+    //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
+    DesiredSpeedR = 10;
+    DesiredSpeedL = 10;
+     SetSpeed();
+    delay(k);
+    PivotRight = false;
+    DesiredSpeedR = 0;
+    DesiredSpeedL = 0;
+     SetSpeed();
+    delay(3000);
+   
+  }
+
+   void angledLeftTurnSmall()
+     {
+    int k = 730*(a);    //Calculates the appropriate delay which will result in the correct turning angle being achieved based on testing and calibration.
     PivotLeft = true;
     //Starts motors at the calibrated values for the length of time calculated. Motor speed briefly lowered before motors are turned off.
     DesiredSpeedR = 10;
