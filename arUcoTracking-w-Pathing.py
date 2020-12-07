@@ -211,10 +211,13 @@ def track(matrix_coefficients, distortion_coefficients):
                         i+=1
             else:
                 #finds last coordinate
-                while p == i or p == m or p == n: 
-                    p+=1
-                    if p > 3:
-                        p = 0
+                if p == i or p == m or p == n:
+                    while p == i or p == m or p == n: 
+                        p+=1
+                        if p > 3:
+                            p = 0
+                else:
+                    p = 0
                     #0 is green, 1 is blue
                     if i < 2: #check colour of block
                         colour1 = 1
