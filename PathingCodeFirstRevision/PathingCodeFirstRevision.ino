@@ -49,10 +49,10 @@ int HomeLocationX = 0; //Might not need
 int HomeLocationY = 0;
 boolean Block1Found = false;
 boolean Block2Found = false;
-float colour1;
-float colour2;
-float colour3;
-float colour4;
+float colour1 = 0;
+float colour2 = 0;
+float colour3 = 0;
+float colour4 = 0;
 
 
 //Servo rotation initial angles and block coordinate variables
@@ -69,10 +69,10 @@ float blueBlockY4;
 boolean IsHome = false;
 boolean Ran = false;
 //Intiates and declares all global variables.
-int DropOffLocationX = 4; //550//Calibrate Drop Off location
-int DropOffLocationY = 413; //420 when lined up
-int blueDropOffLocationX = 555; //550//Calibrate Drop Off location
-int blueDropOffLocationY = 398; //420 when lined up
+int DropOffLocationX = -7; //550//Calibrate Drop Off location
+int DropOffLocationY = 404; //420 when lined up
+int blueDropOffLocationX = 531; //550//Calibrate Drop Off location
+int blueDropOffLocationY = 406; //420 when lined up
 double angleDiff;
 volatile long startPositionR;
 volatile long startPositionL;
@@ -125,7 +125,7 @@ void setup() {
   void loop() 
   { 
       //Wait for Block coordinates before starting code
-      while(BlockX1 == 0){
+      while(colour1 == 0){
         colour1 = Serial.parseFloat(); //Green is 0 and Blue is 1.
       }
       
@@ -151,7 +151,7 @@ void setup() {
         */
       }
       
-      while(blueBlockX3 == 0){
+      while(colour3 == 0){
         colour3 = Serial.parseFloat();
       }
       
@@ -163,16 +163,35 @@ void setup() {
         blueBlockX4 = Serial.parseFloat();
         blueBlockY4 = Serial.parseFloat();
         
-        /*
-        Serial.println("Blue Blocks: ");
-        Serial.print(blueBlockX3); //For testing purposes
-        Serial.print(" Y1=");
-        Serial.print(blueBlockY3);
+        Serial.println("Block 1: ");
+        Serial.print("Colour: ");
+        Serial.print(colour1);
+        Serial.print(" X1= ");
+        Serial.print(BlockX1);
+        Serial.print(" Y1= ");
+        Serial.println(BlockY1);        
+        Serial.println(" Block 2: ");
+        Serial.print(" Colour: ");
+        Serial.print(colour2);
+        Serial.print(" X2= ");
+        Serial.print(BlockX2);
+        Serial.print(" Y2= ");
+        Serial.println(blueBlockY4);       
+        Serial.println(" Block 3: ");
+        Serial.print(" Colour: ");
+        Serial.print(colour3);
+        Serial.print(" X3=");
+        Serial.print(blueBlockX3);
+        Serial.print(" Y3=");
+        Serial.println(blueBlockY3);
+        Serial.println("Block 4: ");
+        Serial.print("Colour: ");
+        Serial.print(colour4);
         Serial.print(" X2=");
         Serial.print(blueBlockX4);
         Serial.print(" Y2=");
         Serial.println(blueBlockY4);
-        */
+        
       }
       
        
@@ -289,10 +308,10 @@ void setup() {
             }
             if (i == 1)  // Go to dropoff
             {
-              if (colour1 == 0){
+              if (colour1 == 1){
                 GreenDropOff();
               }
-              else if (colour1 == 1){
+              else if (colour1 == 2){
                 BlueDropOff();
               }
               else{
@@ -312,10 +331,10 @@ void setup() {
             }
             if (i == 3) // Drop off Block 2
             {
-              if (colour2 == 0){
+              if (colour2 == 1){
                 GreenDropOff();
               }
-              else if (colour2 == 1){
+              else if (colour2 == 2){
                 BlueDropOff();
               }
               else{
@@ -341,10 +360,10 @@ void setup() {
             }
             if (i == 5) //DropOff Block One (Blue)
             {
-              if (colour3 == 0){
+              if (colour3 == 1){
                 GreenDropOff();
               }
-              else if (colour3 == 1){
+              else if (colour3 == 2){
                 BlueDropOff();
               }
               else{
@@ -359,10 +378,10 @@ void setup() {
             }
             if (i == 7) //DropOff Block One (Blue)
             {
-              if (colour4 == 0){
+              if (colour4 == 1){
                 GreenDropOff();
               }
-              else if (colour4 == 1){
+              else if (colour4 == 2){
                 BlueDropOff();
               }
               else{
@@ -506,7 +525,7 @@ void setup() {
     DesiredSpeedL=0;
     SetSpeed();
     if (FinalRotation == false){
-      angleDiff = 3.14;
+      angleDiff = 2.8;
       angledLeftTurn();
       FinalRotation = true;
     }
@@ -785,8 +804,9 @@ void angledLeftTurn()
   }
 
   void BlueDropOff(){
-                   desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
-                   Serial.println("Going to drop-off");
+    
+                desiredAngle = atan2(newY-blueDropOffLocationY, newX-blueDropOffLocationX);
+                Serial.println("Going to drop-off");
                 if ((newX  > (blueDropOffLocationX-15)) && (newY > (blueDropOffLocationY-15)))//(((newX-blueDropOffLocationX)>30 || (newX-blueDropOffLocationX)>-30) && ((newY-blueDropOffLocationY)>30 || (newY - blueDropOffLocationY)<-30))
                 {
                   Serial.println("open");
