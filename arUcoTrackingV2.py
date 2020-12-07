@@ -356,6 +356,12 @@ def track(matrix_coefficients, distortion_coefficients):
 
 
 
+
+
+
+
+
+
             if t<0:
                 if 0<= -(detObsQ/detThresh) and -(detObsQ/detThresh) <=1 and 0<= (detObsR/detThresh) and (detObsR/detThresh) <=1:
                     
