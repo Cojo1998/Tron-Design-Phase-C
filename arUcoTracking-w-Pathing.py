@@ -45,8 +45,10 @@ def track(matrix_coefficients, distortion_coefficients):
     calculatePath=1
 
     def checkPath(x1, y1, x2, y2, x3, y3, x4, y4, xDropG, yDropG, xDropB, yDropB, xHome, yHome):
-        arCoord = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)] #coordinates of blocks
+        arCoord = [(-x1, y1), (-x2, y2), (-x3, y3), (-x4, y4)] #coordinates of blocks
         thresh = 60 #set threshold for path
+        xDropG = -xDropG
+        xDropB = -xDropB
 
         d = 0
         i = 0
@@ -105,20 +107,23 @@ def track(matrix_coefficients, distortion_coefficients):
                 #incrememnt n until its not a value of a missing block 
                 while n == i or n== m: 
                     n+=1
+                    print("n: " + str(n))
                 #prevents from going outside array
                 if n > 3: 
                     n = 3
+                print("n: " + str(n))
                 #if currently in green drop off
-                if n < 2: 
+                if m < 2: 
                     obstacleCheck = [(xDropG+thresh, yDropG), (xDropG-thresh, yDropG), (arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1])]
                 #else do blue drop off
                 else: 
                     obstacleCheck = [(xDropB+thresh, yDropB), (xDropB-thresh, yDropB), (arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1])]
+                    print(obstacleCheck)
 
             #check if path clear to drop off
             if d == 5: 
                 #if green
-                if n > 2: 
+                if n < 2: 
                     obstacleCheck = [(arCoord[n][0]-thresh, arCoord[n][1]), (arCoord[n][0]+thresh, arCoord[n][1]), (xDropG+thresh, yDropG), (xDropG-thresh, yDropG)]
                 #if blue
                 else:
@@ -161,8 +166,10 @@ def track(matrix_coefficients, distortion_coefficients):
                                 k+=1
                             else:
                                 pt = Point(arCoord[j][0], arCoord[j][1])
+                                print(pt)
                                 #if block isnt in threshold
-                                if pt.within(poly) == False: 
+                                if pt.within(poly) == False:
+                                    print(pt.within(poly)) 
                                     k+=1
                                 j+=1
                         if d < 2:
@@ -342,27 +349,27 @@ def track(matrix_coefficients, distortion_coefficients):
                 angleDeg = angle*(180/math.pi)
                 
                 #display aruco marker coordinates
-                cv2.putText(frame, "X: " + str(int((int(x_centerPixel)-int(xHome))*-3.37)) + " mm", (10,75), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)#flipped x
-                cv2.putText(frame, "Y: " + str(int((int(yHome)-int(y_centerPixel))*3.37)) + " mm", (10,100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)
-                cv2.putText(frame, "Direction: " + str(int(angleDeg)) + " degrees", (10,125), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                cv2.putText(frame, "X: " + str(-(int(x_centerPixel)-int(xHome))) + " pixels", (10,175), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)#flipped x
-                cv2.putText(frame, "Y: " + str(int(yHome)-int(y_centerPixel)) + " pixels", (10,200), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)
+                cv2.putText(frame, "X: " + str(int((int(x_centerPixel)-int(xHome))*-3.37)) + " mm", (5,375), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)#flipped x
+                cv2.putText(frame, "Y: " + str(int((int(yHome)-int(y_centerPixel))*3.37)) + " mm", (5,400), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 204, 30), 2)
+                #cv2.putText(frame, "Direction: " + str(int(angleDeg)) + " degrees", (10,125), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                cv2.putText(frame, "X: " + str(-(int(x_centerPixel)-int(xHome))) + " pixels", (5,450), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)#flipped x
+                cv2.putText(frame, "Y: " + str(int(yHome)-int(y_centerPixel)) + " pixels", (5,475), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (31, 196, 255), 2)
 
 
                 if (-(x_centerPixel-xHome))<20 and (-(x_centerPixel-xHome))>-20 and (yHome-y_centerPixel)<20 and (yHome-y_centerPixel)>-20:#flipped x
-                    cv2.putText(frame, "Inital D is Home!", (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (20, 123, 255), 2)
+                    cv2.putText(frame, "Inital D is Home!", (5, 425), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (20, 123, 255), 2)
 
 
 #------------------------------------------------------------------------
                 #send data every 20 counts
                 
                 
-                s+=1
-                if s%10 == 0: #was 20
-                    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
-                    if ser.inWaiting():
-                        msg = ser.readline() #put received msg in "msg"
-                        print(msg) #print "msg"
+                #s+=1
+                #if s%10 == 0: #was 20
+                #    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
+                #    if ser.inWaiting():
+                #        msg = ser.readline() #put received msg in "msg"
+                #        print(msg) #print "msg"
                         
                     
 
@@ -408,7 +415,7 @@ def track(matrix_coefficients, distortion_coefficients):
             center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))
 
             #draw circle around green blobs and dispaly coordinates
-            if radius2 > 3 and radius2 < 6:
+            if radius2 > 2 and radius2 < 6:
                 cv2.circle(frame, (int(x2), int(y2)), int(radius2), (0, 255, 0), 2)
                 cv2.putText(frame, "X: " + str(-(int(x2)-int(xHome))) + " / Y: " + str(int(yHome)-int(y2)), (int(x2),int(y2)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)#flipped x
                 #cv2.circle(frame, center, 3, (0, 0, 255), -1)
@@ -433,7 +440,7 @@ def track(matrix_coefficients, distortion_coefficients):
 
         #display fps
         fps = cv2.getTickFrequency()/(cv2.getTickCount()-timer)
-        cv2.putText(frame, "FPS: " + str(int(fps)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+        #cv2.putText(frame, "FPS: " + str(int(fps)), (10,25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         if t>1 and t2>1: #>1
 
@@ -460,7 +467,7 @@ def track(matrix_coefficients, distortion_coefficients):
                 print("x: " + str(int(bestPath[3][1])) + " / y: " + str(int(bestPath[3][2])))
                 w = 0
                 while w < 4:
-                    ser.write(str(int(bestPath[w][0])).encode() + ",".encode() + str(int(bestPath[w][1])).encode() + ",".encode() + str(int(bestPath[w][2])).encode() + ",".encode())
+                    #ser.write(str(int(bestPath[w][0])).encode() + ",".encode() + str(int(bestPath[w][1])).encode() + ",".encode() + str(int(bestPath[w][2])).encode() + ",".encode())
                     print("sent block " + str(w))
                     w+=1
                 calculatePath = 0
@@ -631,6 +638,6 @@ def track(matrix_coefficients, distortion_coefficients):
 #import camera calibration
 conditions = load_coefficients("camera.yml")
 #connect to bluetooth on robot
-ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
+#ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
 #begin tracking function
 track(conditions[0], conditions[1])
