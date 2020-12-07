@@ -39,6 +39,7 @@ float newY ;
 float startX ;
 float startY ;
 boolean FinalRotation = true;
+boolean endOrientationGreen = false;
 
 signed int motor1Speed, motor2Speed, motorSpeed; //What is this for?
 double differenceX = 21;
@@ -327,7 +328,7 @@ void setup() {
                */
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-BlockY2, newX-BlockX2);
-               Serial.println("go to block 2");
+               Serial.println("Going to block 2");
             }
             if (i == 3) // Drop off Block 2
             {
@@ -356,7 +357,7 @@ void setup() {
             {
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY3, newX-blueBlockX3);
-               Serial.println("go to blue block 1");
+               Serial.println("Going to block 3");
             }
             if (i == 5) //DropOff Block One (Blue)
             {
@@ -374,15 +375,17 @@ void setup() {
             {  
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY4, newX-blueBlockX4);
-               Serial.println("go to blue block 2");
+               Serial.println("Going to block 4");
             }
             if (i == 7) //DropOff Block One (Blue)
             {
               if (colour4 == 1){
                 GreenDropOff();
+                endOrientationGreen = true;
               }
               else if (colour4 == 2){
                 BlueDropOff();
+                endOrientationGreen = false;
               }
               else{
                 
@@ -401,19 +404,25 @@ void setup() {
             }*/
             if (i == 8)  
             {  
+              if (endOrientationGreen == false){
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX-250);
-               Serial.println("Going home");
+               Serial.println("Going Home");
                if (newY < 75)
                {
                 i++;
-               }
+               }                
+              }
+              else{
+                i++;
+              }
+
             }
             if (i == 9)  
             {  
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX);
-               Serial.println("go home y");
+               Serial.println("Going Home");
                if (newX < 20 && newX > -20 && newY < 20 && newY > -20)
                {
                 i++;
@@ -525,9 +534,17 @@ void setup() {
     DesiredSpeedL=0;
     SetSpeed();
     if (FinalRotation == false){
-      angleDiff = 3.07;
-      angledLeftTurn();
-      FinalRotation = true;
+      if (endOrientationGreen == false){
+        angleDiff = 3.07;
+        angledLeftTurn();
+        FinalRotation = true;        
+      }
+      else{
+        angleDiff = 1.57;
+        angledRightTurn();
+        FinalRotation = true;
+      }
+
     }
     DesiredSpeedR=0;
     DesiredSpeedL=0;
