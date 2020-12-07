@@ -40,6 +40,7 @@ float startX ;
 float startY ;
 boolean FinalRotation = true;
 boolean endOrientationGreen = false;
+boolean shortStraight = false;
 
 signed int motor1Speed, motor2Speed, motorSpeed; //What is this for?
 double differenceX = 21;
@@ -58,7 +59,7 @@ float colour4 = 0;
 
 //Servo rotation initial angles and block coordinate variables
 int RotationAngle = 95;
-int GripperAngle = 90;
+int GripperAngle = 82;
 float BlockX1 =0;
 float BlockX2;
 float BlockY1;
@@ -95,7 +96,7 @@ String Start1;
 int i = 0; //used for creating PWM Speed chart
 boolean Print = false;
 boolean PrintBlue = false;
-
+bool HaveCoord = false;
 //PID variables
 volatile float  PreviousErrorL, PreviousErrorR, ErrorSumL, ErrorSumR, LeftAdjustmentPID, RightAdjustmentPID;
 volatile float ChangeInTime = 50000; // time between interrupts
@@ -232,12 +233,22 @@ void setup() {
           //might move these to multitask, unsure yet
           
          while(Serial.available() > 3){
-          newX = Serial.parseFloat();
-          newY = Serial.parseFloat();
+            newX = Serial.parseFloat();
+            newY = Serial.parseFloat();
           }
-          newX = Serial.parseFloat();
-          newY = Serial.parseFloat();
-
+          //if (Serial.available() > 0){
+            newX = Serial.parseFloat();
+            newY = Serial.parseFloat();
+          //  Serial.println("newX: ");
+            //Serial.println(newX);
+            //Serial.println("newY: ");
+            //Serial.println(newY);
+          //  HaveCoord = true;
+        //  }
+         // else // Main logic will not run without coordinates
+          //{
+            //HaveCoord = false;
+          //}
           /*
            Serial.print("X: ");
            Serial.print(newX);
@@ -263,7 +274,7 @@ void setup() {
           newY = Serial.parseFloat();
           */
           
-
+     //if (HaveCoord == true){
           int check = sensor.readRangeContinuousMillimeters();
           Serial.println(check);
           if ((check < 50) && grabFlag == 0 && i<8)  //is there block close by?
@@ -309,6 +320,7 @@ void setup() {
             }
             if (i == 1)  // Go to dropoff
             {
+              shortStraight = true;
               if (colour1 == 1){
                 GreenDropOff();
               }
@@ -326,12 +338,14 @@ void setup() {
               Serial.print(" / Y: ");
                Serial.println(newY);
                */
+               shortStraight = false;
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-BlockY2, newX-BlockX2);
                Serial.println("Going to block 2");
             }
             if (i == 3) // Drop off Block 2
             {
+              shortStraight = true;
               if (colour2 == 1){
                 GreenDropOff();
               }
@@ -355,12 +369,14 @@ void setup() {
             }*/
             if (i == 4) //Pick Up Blue Block One
             {
+               shortStraight = false;
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY3, newX-blueBlockX3);
                Serial.println("Going to block 3");
             }
             if (i == 5) //DropOff Block One (Blue)
             {
+              shortStraight = true;
               if (colour3 == 1){
                 GreenDropOff();
               }
@@ -373,12 +389,14 @@ void setup() {
             }
              if (i == 6) //Pick Up Blue Block Two
             {  
+               shortStraight = false;
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY-blueBlockY4, newX-blueBlockX4);
                Serial.println("Going to block 4");
             }
             if (i == 7) //DropOff Block One (Blue)
             {
+              shortStraight = true;
               if (colour4 == 1){
                 GreenDropOff();
                 endOrientationGreen = true;
@@ -404,6 +422,7 @@ void setup() {
             }*/
             if (i == 8)  
             {  
+              shortStraight = false;
               if (endOrientationGreen == false){
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX-250);
@@ -420,10 +439,11 @@ void setup() {
             }
             if (i == 9)  
             {  
+              shortStraight = true;
                currentAngle=atan2((startY - newY),(startX - newX));
                desiredAngle = atan2(newY, newX);
                Serial.println("Going Home");
-               if (newX < 20 && newX > -20 && newY < 20 && newY > -20)
+               if (newX < 25 && newX > -20 && newY < 20 && newY > -20)
                {
                 i++;
                 Start1 = "";
@@ -516,7 +536,12 @@ void setup() {
               DesiredSpeedR = Speed;
               DesiredSpeedL = Speed;
               SetSpeed();
-              delay(500);
+              if (shortStraight == false){
+                delay(500);
+              }
+              else{
+              delay(375);
+              }
               DesiredSpeedR = CSpeedR;
               DesiredSpeedL = CSpeedL;
               SetSpeed();
@@ -527,8 +552,17 @@ void setup() {
             }            
           }
           FinalRotation = false;
+        
+     }
+ }
+        //} // had coord bracket
+      /*  else //No coordinates received, do nothing
+        {
+         DesiredSpeedR=0;
+         DesiredSpeedL=0;
+         SetSpeed();
         }
-   }
+        */
       
     DesiredSpeedR=0;
     DesiredSpeedL=0;
@@ -546,9 +580,13 @@ void setup() {
       }
 
     }
+        
+
+  
     DesiredSpeedR=0;
     DesiredSpeedL=0;
     SetSpeed();
+   
     
   }
 void SetSpeed() // -------------------Speed Control-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -682,7 +720,7 @@ void angledLeftTurn()
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
-    delay(500);
+     delay(200); //500 delay for 10 iterations Python
     
   }
   void angledLeftTurnSmall()
@@ -698,7 +736,7 @@ void angledLeftTurn()
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
-    delay(500);
+    delay(200);
     
   }
 
@@ -716,7 +754,7 @@ void angledLeftTurn()
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
-    delay(500);
+    delay(200);
   }
      void angledRightTurnSmall()
   {
@@ -731,7 +769,7 @@ void angledLeftTurn()
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
      SetSpeed();
-    delay(500);
+    delay(200);
   }
   
   void GripperClose(){
@@ -745,7 +783,7 @@ void angledLeftTurn()
     RotationServo.write(RotationAngle);               
     delay(20);                   
     }                               
-    RotationServo.write(82);               
+    RotationServo.write(70);               
   }
 
   void GripperOpen(){
@@ -766,6 +804,7 @@ void angledLeftTurn()
     SetSpeed();
     delay(1000);
     ReverseDirection = false;
+    GripperServo.write(82);
     DesiredSpeedR = 0;
     DesiredSpeedL = 0;
     SetSpeed();
