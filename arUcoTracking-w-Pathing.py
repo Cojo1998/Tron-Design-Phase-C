@@ -245,7 +245,7 @@ def track(matrix_coefficients, distortion_coefficients):
             return arPath #return path
         #if all fails, go in regular order
         else: 
-            arPath = [(0, arCoord[0][0], arCoord[0][1]), (0, arCoord[1][0], arCoord[1][1]), (1, arCoord[2][0], arCoord[2][1]), (1, arCoord[3][0], arCoord[3][1]), (0, 0, 0), (0, 0, 1), (0, 0, 2), (0, 0, 3)]
+            arPath = [(1, arCoord[0][0], arCoord[0][1]), (1, arCoord[1][0], arCoord[1][1]), (2, arCoord[2][0], arCoord[2][1]), (2, arCoord[3][0], arCoord[3][1]), (0, 0, 0), (0, 0, 1), (0, 0, 2), (0, 0, 3)]
             print("NO PATH FOUND")
             return arPath
 
