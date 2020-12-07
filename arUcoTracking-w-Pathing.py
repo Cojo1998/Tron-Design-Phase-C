@@ -444,11 +444,11 @@ def track(matrix_coefficients, distortion_coefficients):
 
         if t>1 and t2>1: #>1
 
-            xDropG = -7
-            yDropG = 406
+            xDropG = 1
+            yDropG = 395
 
-            xDropB = 531
-            yDropB = 404
+            xDropB = 503
+            yDropB = 399
 
             if calculatePath == 1:
                 print("Calculating best route...")
@@ -490,10 +490,10 @@ def track(matrix_coefficients, distortion_coefficients):
             yPt5 = arLineDraw[bestPath[7][2]][1]
 
             xDropG = 565
-            yDropG = 52
+            yDropG = 34
 
-            xDropB = 50
-            yDropB = 50
+            xDropB = 75
+            yDropB = 42
 
             if c < 1:
                 cv2.line(frame, (int(xPt1), int(yPt1)), (int(xPt2),int(yPt2)), (0,255,0),2)
