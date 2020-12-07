@@ -71,10 +71,10 @@ float blueBlockY4;
 boolean IsHome = false;
 boolean Ran = false;
 //Intiates and declares all global variables.
-int DropOffLocationX = -7; //550//Calibrate Drop Off location
-int DropOffLocationY = 404; //420 when lined up
-int blueDropOffLocationX = 531; //550//Calibrate Drop Off location
-int blueDropOffLocationY = 406; //420 when lined up
+int DropOffLocationX = 4; //1//Calibrate Drop Off location
+int DropOffLocationY = 400; //395 when lined up
+int blueDropOffLocationX = 521; //503//Calibrate Drop Off location
+int blueDropOffLocationY = 396; //420 when lined up
 double angleDiff;
 volatile long startPositionR;
 volatile long startPositionL;
@@ -193,7 +193,7 @@ void setup() {
         Serial.print(blueBlockX4);
         Serial.print(" Y2=");
         Serial.println(blueBlockY4);
-        
+        blueBlockX4 = blueBlockX4 + 5; 
       }
       
        
@@ -802,7 +802,7 @@ void angledLeftTurn()
     DesiredSpeedR = Speed;
     DesiredSpeedL = Speed;
     SetSpeed();
-    delay(1000);
+    delay(750);
     ReverseDirection = false;
     GripperServo.write(82);
     DesiredSpeedR = 0;
@@ -811,7 +811,7 @@ void angledLeftTurn()
 
     //180
     Serial.println("stopped reverse");
-    angleDiff = 3.14;
+    angleDiff = 2.3;
     angledLeftTurn();
     
     while(Serial.available() > 3){
