@@ -209,6 +209,7 @@ def track(matrix_coefficients, distortion_coefficients):
                         d = 4 #go back to block picking stage
                     if d < 2 or m > 3: #if still planning first path, or all paths blocked for stage 2
                         i+=1
+                        d = 0
             else:
                 #finds last coordinate
                 if p == i or p == m or p == n:
