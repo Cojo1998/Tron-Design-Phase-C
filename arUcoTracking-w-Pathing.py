@@ -565,7 +565,7 @@ def track(matrix_coefficients, distortion_coefficients):
             if c < 7:
                 if bestPath[2][0] == 1:
                     if c == 6:
-                        cv2.line(frame, (int(xDropG),int(yDropG)), (int(xPt5),int(yPt5)), (255,0,255),2)
+                        cv2.line(frame, (int(xPt1),int(yPt1)), (int(xPt5),int(yPt5)), (255,0,255),2)
                     else:
                         cv2.line(frame, (int(xDropG),int(yDropG)), (int(xPt5),int(yPt5)), (255,0,255),2)
                 else:
