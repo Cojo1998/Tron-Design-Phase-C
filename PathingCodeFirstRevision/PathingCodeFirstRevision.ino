@@ -525,7 +525,7 @@ void setup() {
     DesiredSpeedL=0;
     SetSpeed();
     if (FinalRotation == false){
-      angleDiff = 2.8;
+      angleDiff = 3.07;
       angledLeftTurn();
       FinalRotation = true;
     }
