@@ -45,10 +45,10 @@ def track(matrix_coefficients, distortion_coefficients):
     calculatePath=1
 
     def checkPath(x1, y1, x2, y2, x3, y3, x4, y4, xDropG, yDropG, xDropB, yDropB, xHome, yHome):
-        arCoord = [(-x1, y1), (-x2, y2), (-x3, y3), (-x4, y4)] #coordinates of blocks
+        arCoord = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)] #coordinates of blocks
         thresh = 60 #set threshold for path
-        xDropG = -xDropG
-        xDropB = -xDropB
+        #xDropG = -xDropG
+        #xDropB = -xDropB
 
         d = 0
         i = 0
@@ -364,12 +364,12 @@ def track(matrix_coefficients, distortion_coefficients):
                 #send data every 20 counts
                 
                 
-                #s+=1
-                #if s%10 == 0: #was 20
-                #    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
-                #    if ser.inWaiting():
-                #        msg = ser.readline() #put received msg in "msg"
-                #        print(msg) #print "msg"
+                s+=1
+                if s%10 == 0: #was 20
+                    ser.write(str(-(int(x_centerPixel)-int(xHome))).encode() + ",".encode() + str(int(yHome)-int(y_centerPixel)).encode() + ",".encode())#flipped x
+                    if ser.inWaiting():
+                        msg = ser.readline() #put received msg in "msg"
+                        print(msg) #print "msg"
                         
                     
 
@@ -467,7 +467,7 @@ def track(matrix_coefficients, distortion_coefficients):
                 print("x: " + str(int(bestPath[3][1])) + " / y: " + str(int(bestPath[3][2])))
                 w = 0
                 while w < 4:
-                    #ser.write(str(int(bestPath[w][0])).encode() + ",".encode() + str(int(bestPath[w][1])).encode() + ",".encode() + str(int(bestPath[w][2])).encode() + ",".encode())
+                    ser.write(str(int(bestPath[w][0])).encode() + ",".encode() + str(int(bestPath[w][1])).encode() + ",".encode() + str(int(bestPath[w][2])).encode() + ",".encode())
                     print("sent block " + str(w))
                     w+=1
                 calculatePath = 0
@@ -638,6 +638,6 @@ def track(matrix_coefficients, distortion_coefficients):
 #import camera calibration
 conditions = load_coefficients("camera.yml")
 #connect to bluetooth on robot
-#ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
+ser = serial.Serial("COM10", 9600, timeout=2) #------------------------------------------------------------------------
 #begin tracking function
 track(conditions[0], conditions[1])
