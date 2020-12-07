@@ -218,23 +218,23 @@ def track(matrix_coefficients, distortion_coefficients):
                             p = 0
                 else:
                     p = 0
-                    #0 is green, 1 is blue
-                    if i < 2: #check colour of block
-                        colour1 = 1
-                    else:
-                        colour1 = 2
-                    if m < 2: #check colour of block
-                        colour2 = 1
-                    else:
-                        colour2 = 2
-                    if n < 2: #check colour of block
-                        colour3 = 1
-                    else:
-                        colour3 = 2
-                    if p < 2: #check colour of block
-                        colour4 = 1
-                    else:
-                        colour4 = 2
+                #0 is green, 1 is blue
+                if i < 2: #check colour of block
+                    colour1 = 1
+                else:
+                    colour1 = 2
+                if m < 2: #check colour of block
+                    colour2 = 1
+                else:
+                    colour2 = 2
+                if n < 2: #check colour of block
+                    colour3 = 1
+                else:
+                    colour3 = 2
+                if p < 2: #check colour of block
+                    colour4 = 1
+                else:
+                    colour4 = 2
                 #path of robot
                 arPath = [(colour1, arCoord[i][0], arCoord[i][1]), (colour2, arCoord[m][0], arCoord[m][1]), (colour3, arCoord[n][0], arCoord[n][1]), (colour4, arCoord[p][0], arCoord[p][1]), (0, 0, i), (0, 0, m), (0, 0, n), (0, 0, p)]
                 i = 8 #ends while loop
